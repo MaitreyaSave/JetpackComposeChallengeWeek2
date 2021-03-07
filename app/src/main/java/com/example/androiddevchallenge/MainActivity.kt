@@ -16,27 +16,30 @@
 package com.example.androiddevchallenge
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
+    val countDownFinished = remember {mutableStateOf(false)}
     Surface(color = MaterialTheme.colors.background) {
         Column(
             Modifier
@@ -61,55 +65,109 @@ fun MyApp() {
             // Heading
             Text(
                 text = "Countdown Timer",
-                style = TextStyle(fontSize = 24.sp),
+                style = TextStyle(fontSize = 32.sp),
                 modifier = Modifier.padding(10.dp)
             )
-            TimerDetails()
+
+            TimerDetails(countDownFinished)
+            if (countDownFinished.value){
+                Text(
+                    text = "Countdown Finished!!!",
+                    style = TextStyle(fontSize = 32.sp, color = Color.Red),
+                    modifier = Modifier.padding(0.dp,30.dp,0.dp,0.dp)
+
+                )
+            }
         }
 
     }
 }
 
+
 @Composable
-fun TimerDetails() {
+fun TimerDetails(countDownFinished: MutableState<Boolean>) {
+    val countDownSeconds = remember { mutableStateOf(0)}
+    val isCountingDown = remember { mutableStateOf(false)}
+    val timer = Timer()
     Column(
         Modifier
-            .fillMaxHeight()
             .fillMaxWidth(),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         // Pause/Play/Reset buttons
         Row(
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp)
+                .padding(4.dp, 50.dp, 0.dp, 70.dp)
         ) {
             Button(
+                enabled = !isCountingDown.value,
                 modifier = Modifier
-                    .weight(1F)
-                    .size(50.dp)
-                    .padding(4.dp),
-                onClick = { /*TODO*/ }
+                    .padding(10.dp, 0.dp)
+                    .size(100.dp),
+                onClick = {
+                    if (countDownSeconds.value > 0) {
+                        isCountingDown.value = true
+                        countDownFinished.value = false
+                        timer.schedule(object : TimerTask() {
+                            override fun run() {
+                                if(isCountingDown.value){
+                                    countDownSeconds.value--
+                                    if(countDownSeconds.value <= 0){
+                                        countDownFinished.value = true
+                                        isCountingDown.value = false
+                                    }
+                                }
+                            }
+                        }, 0, 1000)
+                    }
+                }
             ) {
-//                Text(text = ">")
-                // Check how to make button square
+                Icon(
+                    imageVector = Icons.Filled.PlayArrow,
+                    contentDescription = "Play",
+                    Modifier
+                        .size(60.dp)
+                )
+            }
+            Button(
+                enabled = isCountingDown.value,
+                modifier = Modifier
+                    .padding(10.dp, 0.dp)
+                    .size(100.dp),
+                onClick = {
+                    isCountingDown.value = false
+                    timer.cancel()
+                    timer.purge()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Pause,
+                    contentDescription = "Pause",
+                    Modifier
+                        .size(60.dp)
+                )
             }
             Button(
                 modifier = Modifier
-                    .weight(1F)
-                    .padding(4.dp),
-                onClick = { /*TODO*/ }
+                    .padding(10.dp, 0.dp)
+                    .size(100.dp),
+                onClick = {
+                    isCountingDown.value = false
+                    countDownSeconds.value = 0
+                    timer.cancel()
+                    timer.purge()
+                }
             ) {
-                Text(text = "||")
-            }
-            Button(
-                modifier = Modifier
-                    .weight(1F)
-                    .padding(4.dp),
-                onClick = { /*TODO*/ }
-            ) {
-                Text(text = "?")
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Reset",
+                    Modifier
+                        .size(60.dp)
+                )
             }
         }
 
@@ -125,33 +183,73 @@ fun TimerDetails() {
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = "Hrs"
+                text = "Hrs",
+                style = TextStyle(fontSize = 24.sp)
             )
             Text(
                 modifier = Modifier
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = "Min"
+                text = "Min",
+                style = TextStyle(fontSize = 24.sp)
             )
             Text(
                 modifier = Modifier
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = "Sec"
+                text = "Sec",
+                style = TextStyle(fontSize = 24.sp)
             )
         }
-        ButtonRow("+")
-        Row() {
-            Text(text = "00")
+
+        // Button Row to increase values
+        ButtonRow("+", countDownSeconds, 1)
+
+        // Values
+        val valueHrs: Int =( countDownSeconds.value / 3600) % 60
+        val valueMin: Int = (countDownSeconds.value / 60) % 60
+        val valueSec: Int = countDownSeconds.value % 60
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
+        ) {
+            Text(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(4.dp),
+                textAlign = TextAlign.Center,
+                text = valueHrs.toString().padStart(2,'0'),
+                style = TextStyle(fontSize = 48.sp)
+            )
+            Text(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(4.dp),
+                textAlign = TextAlign.Center,
+                text = valueMin.toString().padStart(2,'0'),
+                style = TextStyle(fontSize = 48.sp)
+            )
+            Text(
+                modifier = Modifier
+                    .weight(1F)
+                    .padding(4.dp),
+                textAlign = TextAlign.Center,
+                text = valueSec.toString().padStart(2,'0'),
+                style = TextStyle(fontSize = 48.sp)
+            )
         }
-        ButtonRow("-")
+
+        // Button Row to decrease values
+        ButtonRow("-", countDownSeconds, -1)
     }
 }
 
 @Composable
-fun ButtonRow(buttonText:String){
+fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int){
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -161,7 +259,13 @@ fun ButtonRow(buttonText:String){
             modifier = Modifier
                 .weight(1F)
                 .padding(4.dp),
-            onClick = { /*TODO*/ }
+            onClick = {
+                countDownSeconds.value += sign * 3600
+                if (countDownSeconds.value < 0){
+                    countDownSeconds.value -= sign * 3600
+                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                }
+            }
         ) {
             Text(text = buttonText)
         }
@@ -169,7 +273,13 @@ fun ButtonRow(buttonText:String){
             modifier = Modifier
                 .weight(1F)
                 .padding(4.dp),
-            onClick = { /*TODO*/ }
+            onClick = {
+                countDownSeconds.value += sign * 60
+                if (countDownSeconds.value < 0){
+                    countDownSeconds.value -= sign * 60
+                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                }
+            }
         ) {
             Text(text = buttonText)
         }
@@ -177,7 +287,13 @@ fun ButtonRow(buttonText:String){
             modifier = Modifier
                 .weight(1F)
                 .padding(4.dp),
-            onClick = { /*TODO*/ }
+            onClick = {
+                countDownSeconds.value += sign
+                if (countDownSeconds.value < 0){
+                    countDownSeconds.value -= sign
+                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                }
+            }
         ) {
             Text(text = buttonText)
         }

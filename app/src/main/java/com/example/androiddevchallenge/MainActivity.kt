@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp() {
-    val countDownFinished = remember {mutableStateOf(false)}
+    val countDownFinished = remember { mutableStateOf(false) }
     Surface(color = MaterialTheme.colors.background) {
         Column(
             Modifier
@@ -80,24 +80,22 @@ fun MyApp() {
             )
 
             TimerDetails(countDownFinished)
-            if (countDownFinished.value){
+            if (countDownFinished.value) {
                 Text(
                     text = "Countdown Finished!!!",
                     style = TextStyle(fontSize = 32.sp, color = Color.Red),
-                    modifier = Modifier.padding(0.dp,30.dp,0.dp,0.dp)
-
+                    modifier = Modifier.padding(0.dp, 30.dp, 0.dp, 0.dp)
                 )
             }
         }
-
     }
 }
 
 
 @Composable
 fun TimerDetails(countDownFinished: MutableState<Boolean>) {
-    val countDownSeconds = remember { mutableStateOf(0)}
-    val isCountingDown = remember { mutableStateOf(false)}
+    val countDownSeconds = remember { mutableStateOf(0) }
+    val isCountingDown = remember { mutableStateOf(false) }
     var timer: Timer? = null
     val timerTask = object : TimerTask() {
         override fun run() {

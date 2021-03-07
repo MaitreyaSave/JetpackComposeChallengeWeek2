@@ -48,7 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import java.util.*
+import java.util.TimerTask
+import java.util.Timer
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,7 +98,18 @@ fun MyApp() {
 fun TimerDetails(countDownFinished: MutableState<Boolean>) {
     val countDownSeconds = remember { mutableStateOf(0)}
     val isCountingDown = remember { mutableStateOf(false)}
-    val timer = Timer()
+    var timer: Timer? = null
+    val timerTask = object : TimerTask() {
+        override fun run() {
+            if(isCountingDown.value){
+                countDownSeconds.value--
+                if(countDownSeconds.value <= 0){
+                    countDownFinished.value = true
+                    isCountingDown.value = false
+                }
+            }
+        }
+    }
     Column(
         Modifier
             .fillMaxWidth(),
@@ -121,17 +133,8 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     if (countDownSeconds.value > 0) {
                         isCountingDown.value = true
                         countDownFinished.value = false
-                        timer.schedule(object : TimerTask() {
-                            override fun run() {
-                                if(isCountingDown.value){
-                                    countDownSeconds.value--
-                                    if(countDownSeconds.value <= 0){
-                                        countDownFinished.value = true
-                                        isCountingDown.value = false
-                                    }
-                                }
-                            }
-                        }, 0, 1000)
+                        timer = Timer()
+                        timer!!.schedule(timerTask, 0, 1000)
                     }
                 }
             ) {
@@ -149,8 +152,8 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     .size(100.dp),
                 onClick = {
                     isCountingDown.value = false
-                    timer.cancel()
-                    timer.purge()
+                    timer?.cancel()
+                    timer?.purge()
                 }
             ) {
                 Icon(
@@ -167,8 +170,8 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                 onClick = {
                     isCountingDown.value = false
                     countDownSeconds.value = 0
-                    timer.cancel()
-                    timer.purge()
+                    timer?.cancel()
+                    timer?.purge()
                 }
             ) {
                 Icon(

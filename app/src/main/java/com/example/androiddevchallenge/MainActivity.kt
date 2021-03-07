@@ -48,8 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import java.util.TimerTask
 import java.util.Timer
+import java.util.TimerTask
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +91,6 @@ fun MyApp() {
     }
 }
 
-
 @Composable
 fun TimerDetails(countDownFinished: MutableState<Boolean>) {
     val countDownSeconds = remember { mutableStateOf(0) }
@@ -99,9 +98,9 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
     var timer: Timer? = null
     val timerTask = object : TimerTask() {
         override fun run() {
-            if(isCountingDown.value){
+            if (isCountingDown.value) {
                 countDownSeconds.value--
-                if(countDownSeconds.value <= 0){
+                if (countDownSeconds.value <= 0) {
                     countDownFinished.value = true
                     isCountingDown.value = false
                 }
@@ -181,7 +180,6 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
             }
         }
 
-
         // Labels
         Row(
             modifier = Modifier
@@ -218,7 +216,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
         ButtonRow("+", countDownSeconds, 1)
 
         // Values
-        val valueHrs: Int =( countDownSeconds.value / 3600) % 60
+        val valueHrs: Int = (countDownSeconds.value / 3600) % 60
         val valueMin: Int = (countDownSeconds.value / 60) % 60
         val valueSec: Int = countDownSeconds.value % 60
         Row(
@@ -231,7 +229,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = valueHrs.toString().padStart(2,'0'),
+                text = valueHrs.toString().padStart(2, '0'),
                 style = TextStyle(fontSize = 48.sp)
             )
             Text(
@@ -239,7 +237,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = valueMin.toString().padStart(2,'0'),
+                text = valueMin.toString().padStart(2, '0'),
                 style = TextStyle(fontSize = 48.sp)
             )
             Text(
@@ -247,7 +245,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     .weight(1F)
                     .padding(4.dp),
                 textAlign = TextAlign.Center,
-                text = valueSec.toString().padStart(2,'0'),
+                text = valueSec.toString().padStart(2, '0'),
                 style = TextStyle(fontSize = 48.sp)
             )
         }
@@ -258,7 +256,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
 }
 
 @Composable
-fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int){
+fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -271,9 +269,9 @@ fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int
                 .padding(4.dp),
             onClick = {
                 countDownSeconds.value += sign * 3600
-                if (countDownSeconds.value < 0){
+                if (countDownSeconds.value < 0) {
                     countDownSeconds.value -= sign * 3600
-                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Value cannot be less than 0", Toast.LENGTH_SHORT).show()
                 }
             }
         ) {
@@ -285,9 +283,9 @@ fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int
                 .padding(4.dp),
             onClick = {
                 countDownSeconds.value += sign * 60
-                if (countDownSeconds.value < 0){
+                if (countDownSeconds.value < 0) {
                     countDownSeconds.value -= sign * 60
-                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Value cannot be less than 0", Toast.LENGTH_SHORT).show()
                 }
             }
         ) {
@@ -299,9 +297,9 @@ fun ButtonRow(buttonText: String, countDownSeconds: MutableState<Int>, sign: Int
                 .padding(4.dp),
             onClick = {
                 countDownSeconds.value += sign
-                if (countDownSeconds.value < 0){
+                if (countDownSeconds.value < 0) {
                     countDownSeconds.value -= sign
-                    Toast.makeText(context,"Value cannot be less than 0", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Value cannot be less than 0", Toast.LENGTH_SHORT).show()
                 }
             }
         ) {

@@ -93,6 +93,7 @@ fun MyApp() {
 
 @Composable
 fun TimerDetails(countDownFinished: MutableState<Boolean>) {
+    val firstTimeRun = remember { mutableStateOf(true) }
     val countDownSeconds = remember { mutableStateOf(0) }
     val isCountingDown = remember { mutableStateOf(false) }
     var timer: Timer? = null
@@ -107,6 +108,7 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
             }
         }
     }
+
     Column(
         Modifier
             .fillMaxWidth(),
@@ -127,11 +129,14 @@ fun TimerDetails(countDownFinished: MutableState<Boolean>) {
                     .padding(10.dp, 0.dp)
                     .size(100.dp),
                 onClick = {
+                    if (firstTimeRun.value) {
+                        timer = Timer()
+                        timer?.schedule(timerTask, 0, 1000)
+                        firstTimeRun.value = false
+                    }
                     if (countDownSeconds.value > 0) {
                         isCountingDown.value = true
                         countDownFinished.value = false
-                        timer = Timer()
-                        timer!!.schedule(timerTask, 0, 1000)
                     }
                 }
             ) {
